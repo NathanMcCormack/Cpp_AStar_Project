@@ -41,7 +41,7 @@ GitHub was used for version control, with commits made after each working milest
 | M2 | A\* search producing correct paths on default grid | ✅ Complete |
 | M3 | Path reconstruction and console visualisation | ✅ Complete |
 | M4 | Edge-case test suite (6 tests, all passing) | ✅ Complete |
-| M5 | Report written across all pages with code snippets and evidence | ✅ Complete |
+| M5 | Report written across all pages with code snippets and evidence |  Incomplete |
 
 ---
 

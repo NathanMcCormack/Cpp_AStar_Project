@@ -40,11 +40,9 @@ Any AI-assisted content was:
 
 - The class design (`aStarGrid`, `Pos`, `AStarResult`) — designed on paper before any coding
 - The decision to use 4-direction movement and Manhattan distance
-- The lazy-deletion pattern for the open set — arrived at this by reading about the problem and reasoning through it
-- The `cameFrom` sentinel `{-1,-1}` and safety guard — added after discovering the reconstruction bug myself during testing
+-
 
 ---
 
 ## 4. Independence statement
 
-This is an individual project. All final design and implementation decisions are my own. I can explain, discuss, and extend every part of the codebase in person during a lab demonstration — including the comparator ordering, the stale-entry check, the admissibility of Manhattan distance, and the path reconstruction logic.
