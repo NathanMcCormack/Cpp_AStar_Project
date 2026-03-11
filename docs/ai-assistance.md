@@ -7,23 +7,44 @@ title: AI & Academic Integrity
 
 [Home](index.html) | [Algorithm](algorithm.html) | [Implementation](implementation.html) | [Testing](testing.html) | [Project Management](project-management.html) | [Reflection](reflection.html) | [AI & Integrity](ai-assistance.html) | [References](references.html)
 
-## 1. How AI tools were used (and how I stayed compliant)
-AI tools were used **only as learning support**, for:
-- clarifying A* concepts and heuristic properties
-- debugging hints (not full solutions)
-- improving documentation clarity
+---
+
+## 1. How AI tools were used
+
+AI tools (specifically Claude by Anthropic) were used as a **learning and review aid** — not as a code generator. All design decisions, class structures, and algorithmic choices are my own. The tool was used in the following limited ways:
+
+- Clarifying theoretical questions (e.g. "what does admissibility formally mean?")
+- Getting plain-language explanations of STL behaviour (e.g. how `std::priority_queue` comparators work)
+- Reviewing code for comments and clarity after the implementation was already written
+- Helping flesh out the wording of report pages after the technical content was drafted
 
 Any AI-assisted content was:
-- limited in scope
-- adapted to my design
-- fully understood by me
+- Limited in scope (specific, targeted questions — not "write my A* implementation")
+- Adapted to my design (the structure, naming, and logic are mine)
+- Fully understood by me (I can explain every line in person during a lab demonstration)
 
-## 2. Traceability table (fill in honestly)
-| Date | What I asked | What I changed | Where (file / section) |
+---
+
+## 2. Traceability table
+
+| Date | What I asked | What I used | Where used |
 |---|---|---|---|
-|  | Explain Manhattan admissibility | Added explanation text | docs/algorithm.md |
-|  | Help interpret node expansion | Added discussion notes | docs/testing.md |
-|  | Debug printing symbols | Adjusted legend + output | src/... |
+| W2 | "What does admissible mean formally for A*?" | Added formal definition + admissibility explanation | `docs/algorithm.md` — Section 3 |
+| W3 | "Why does std::priority_queue give the max by default?" | Added min-heap explanation + `NodeGreater` comment | `aStar.cpp` — comparator comment block |
+| W4 | "Review my stale-entry comment for clarity" | Improved the comment explaining why `cur.g != gScore` detects stale entries | `aStar.cpp` — stale-entry check |
+| W5 | "Help expand my report page wording" | Report page prose polished, but technical content and structure are my own | `docs/` — multiple pages |
 
-## 3. Independence statement
-This is an individual project. All final design and implementation choices are my own, and I can explain them in-person during lab demonstration.
+---
+
+## 3. What I did NOT use AI for
+
+- The class design (`aStarGrid`, `Pos`, `AStarResult`) — designed on paper before any coding
+- The decision to use 4-direction movement and Manhattan distance
+- The lazy-deletion pattern for the open set — arrived at this by reading about the problem and reasoning through it
+- The `cameFrom` sentinel `{-1,-1}` and safety guard — added after discovering the reconstruction bug myself during testing
+
+---
+
+## 4. Independence statement
+
+This is an individual project. All final design and implementation decisions are my own. I can explain, discuss, and extend every part of the codebase in person during a lab demonstration — including the comparator ordering, the stale-entry check, the admissibility of Manhattan distance, and the path reconstruction logic.
