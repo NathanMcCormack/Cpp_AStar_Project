@@ -27,9 +27,9 @@ These goals shaped both the file structure and the coding style.
 | File | Responsibility |
 |---|---|
 | `a_star_grid.h/.cpp` | Grid class, validation, neighbour generation, Manhattan heuristic |
-| `a_star.h/.cpp` | Search result type and A\* implementation |
+| `a_star.h/.cpp` | Search result type and A* implementation |
 | `main.cpp` | Builds a demo grid, runs the search, prints a visual overlay |
-| `unit_tests.h/.cpp` | Test harness and six unit tests |
+| `unit_tests.h/.cpp` | Test harness and unit tests |
 | `Makefile` | Build automation for the demo binary and test binary |
 | `.clang-format` | Shared formatting rules for editor/tool consistency |
 
@@ -37,7 +37,36 @@ This directly supports the brief requirement for **object-oriented design and mo
 
 ---
 
-## 3. `AStarGrid`: representing the environment
+## 3. Class diagram and object-oriented design
+
+The project was designed using a modular object-oriented structure rather than placing all logic in a single file. This makes the code easier to read, test, maintain, and explain.
+
+The main modules are:
+
+- **`AStarGrid`** — stores the map, start node, goal node, validation rules, neighbour generation, and helper functions such as Manhattan distance
+- **`RunAStarSearch` / `AStarResult`** — perform the search and package the result cleanly
+- **`main.cpp`** — demonstrates the final program behaviour and console visualisation
+- **`unit_tests.cpp`** — verifies expected behaviour using repeatable test cases
+
+When the class diagram is exported, it should be placed here in:
+
+`docs/assets/images/class-diagram.png`
+
+<!-- Uncomment when the image is added:
+![Class Diagram](assets/images/class-diagram.png)
+-->
+
+This design follows **separation of concerns**:
+- the grid class manages data and movement rules
+- the search logic manages the pathfinding process
+- the main program handles demonstration output
+- the test file handles verification
+
+That separation improved clarity and made later extensions easier.
+
+---
+
+## 4. `AStarGrid`: representing the environment
 
 The environment is stored as a 2D `std::vector<std::vector<int>>`:
 
@@ -68,7 +97,7 @@ This improves readability because `position.row` and `position.col` make the coo
 
 ---
 
-## 4. Validation strategy
+## 5. Validation strategy
 
 The implementation uses **fail-fast validation**.
 
@@ -92,17 +121,19 @@ This is used by both `SetStart()` and `SetGoal()`, and it is also called by the 
 
 ---
 
-## 5. Neighbour generation
+## 6. Neighbour generation
 
-Neighbour generation is isolated in `Neighbours4()`:
+Neighbour generation is isolated in `Neighbours4()`.
+
+A simplified version of the movement directions is shown below:
 
 ```cpp
-constexpr std::array<AStarGrid::Position, 4> kDirections{{
-    {-1, 0},
-    {1, 0},
-    {0, -1},
-    {0, 1},
-}};
+constexpr std::array<AStarGrid::Position, 4> kDirections = {
+    AStarGrid::Position{-1, 0},
+    AStarGrid::Position{1, 0},
+    AStarGrid::Position{0, -1},
+    AStarGrid::Position{0, 1}
+};
 ```
 
 The function returns only valid orthogonal neighbours that are:
@@ -114,7 +145,7 @@ This keeps all movement rules in one place. If the project were later extended t
 
 ---
 
-## 6. `AStarResult`: packaging search output cleanly
+## 7. `AStarResult`: packaging search output cleanly
 
 The search does not just return a boolean. It returns a dedicated result struct:
 
@@ -133,9 +164,9 @@ The helper `PathLengthInMoves()` converts the stored path size into move count, 
 
 ---
 
-## 7. Core A* data structures
+## 8. Core A* data structures
 
-### 7.1 Open set
+### 8.1 Open set
 
 ```cpp
 std::priority_queue<OpenNode,
@@ -145,7 +176,7 @@ std::priority_queue<OpenNode,
 
 The open set stores candidate frontier nodes. It is implemented with `std::priority_queue` for efficient extraction of the lowest-ranked node.
 
-### 7.2 `g_score`
+### 8.2 `g_score`
 
 ```cpp
 std::vector<std::vector<int>> g_score(
@@ -154,7 +185,7 @@ std::vector<std::vector<int>> g_score(
 
 This stores the best known exact path cost from the start to every cell.
 
-### 7.3 `came_from`
+### 8.3 `came_from`
 
 ```cpp
 std::vector<std::vector<Position>> came_from(
@@ -163,15 +194,15 @@ std::vector<std::vector<Position>> came_from(
 
 This stores the parent of each cell on the best known route so the final path can be reconstructed by walking backward from the goal.
 
-### 7.4 Closed set
+### 8.4 Closed set
 
 A 2D table records whether a node has already been fully expanded. Because Manhattan distance is consistent for this problem, closed nodes do not need to be reopened.
 
 ---
 
-## 8. Stale-entry handling
+## 9. Stale-entry handling
 
-A common practical issue with A\* in C++ is that `std::priority_queue` has no **decrease-key** operation. If a better path to a node is found, the code cannot edit the old queue entry in place.
+A common practical issue with A* in C++ is that `std::priority_queue` has no **decrease-key** operation. If a better path to a node is found, the code cannot edit the old queue entry in place.
 
 The solution used here is **lazy deletion**:
 
@@ -183,7 +214,7 @@ This keeps the implementation simple, correct, and efficient enough for the proj
 
 ---
 
-## 9. Path reconstruction
+## 10. Path reconstruction
 
 Once the goal is reached, the path is rebuilt by following `came_from` links backward:
 
@@ -196,12 +227,66 @@ A sentinel position `{-1, -1}` is used to detect an invalid parent chain. This i
 
 ---
 
-## 10. Console visualisation
+## 11. Development process: building the project from the ground up
 
-The final output layer is intentionally kept in `main.cpp`, not inside the search class. That separation matters:
+To demonstrate understanding, the project was developed incrementally rather than implemented as one finished block of code. Each stage was tested before the next feature was added.
+
+### Step 1: test the base grid and helper output
+
+The first milestone was representing the environment correctly and making sure the start, goal, and blocked cells printed in the right positions.
+
+This early debug stage also printed the Manhattan distance and the walkable neighbours of the start node. That was useful because the project only allows **4-directional movement**, so both the heuristic and neighbour logic needed to match that rule exactly.
+
+![Grid, Manhattan Distance, and Neighbour Debugging](assets/images/manhattan-step1.png)
+
+I also kept a screenshot of the supporting `main.cpp` debug code used during this stage.
+
+![Debug Code in main.cpp](assets/images/maincpp-manhattan-step1.png)
+
+### Step 2: verify blocked-grid behaviour
+
+A correct pathfinding program must also handle failure cases properly. I created a blocked map where the goal could not be reached and verified that the program reported **No path found** instead of inventing an invalid route.
+
+![No Path Found Output](assets/images/no-path-step.png)
+
+This stage improved robustness and helped validate the defensive logic in the implementation.
+
+### Step 3: run A* on a solvable grid
+
+Once the grid, heuristic, and neighbour logic were all working, the complete A* search was run on a solvable map.
+
+The program successfully:
+
+- found a path from `S` to `G`
+- reported the path length in moves
+- reported the number of expanded nodes
+- displayed the explored route visually
+
+![Successful A* Output](assets/images/manhattan-step2.png)
+
+### Step 4: produce the final visual overlay
+
+The final stage improved presentation by overlaying the search result onto the grid using distinct symbols:
+
+- `*` for the final path
+- `x` for expanded cells that are not part of the final path
+- `#` for obstacles
+- `S` and `G` for the endpoints
+
+This made the final result easier to explain during demonstration and helped show how the algorithm explored the search space.
+
+![Final Overlay Visualisation](assets/images/final-overlay.png)
+
+This staged process shows that the solution was developed systematically, tested continuously, and refined into a modular final implementation.
+
+---
+
+## 12. Console visualisation
+
+The final output layer is intentionally kept in `main.cpp`, not inside the search logic. That separation matters:
 
 - the algorithm module focuses on correctness
-- the UI/demo module focuses on presentation
+- the demo/output layer focuses on presentation
 
 The overlay uses:
 
@@ -214,9 +299,26 @@ This makes the search behaviour easy to explain during a lab demonstration.
 
 ---
 
-## 11. Style decisions applied in the code
+## 13. Unit testing support
 
-The project follows a consistent style influenced by the Google C++ Style Guide and the C++ Core Guidelines:
+To improve correctness and maintainability, I added a separate unit-test source/header pair rather than relying only on manual checking in `main.cpp`.
+
+The unit tests verify core behaviours such as:
+
+- Manhattan distance calculation
+- neighbour generation indirectly through valid path structure
+- path found on a solvable map
+- correct handling of a blocked map
+- validation of invalid grids
+- validation of invalid start/goal assumptions in the constructor
+
+This supports the brief requirement for testing and provides stronger evidence that the implementation works beyond a single demo case.
+
+---
+
+## 14. Style decisions applied in the code
+
+The project follows a consistent style influenced by the Google C++ Style Guide, the C++ Core Guidelines, and K&R-style brace formatting:
 
 - **self-contained headers** with include guards
 - **PascalCase** for types and major functions
@@ -226,18 +328,18 @@ The project follows a consistent style influenced by the Google C++ Style Guide 
 - **no raw `new` / `delete`**
 - comments used for non-obvious logic rather than obvious line-by-line narration
 
-The formatter configuration in `.clang-format` helps enforce this consistently.
+The formatter configuration in `.clang-format` helps enforce this consistently across the project.
 
 ---
 
-## 12. Reuse and extension potential
+## 15. Reuse and extension potential
 
 The code is intentionally designed so it can be extended without rewriting everything. Reasonable future extensions include:
 
 - loading grids from a file instead of hardcoding them
 - supporting weighted terrain
 - adding diagonal movement with a different heuristic
-- benchmarking A\* against BFS or Dijkstra
+- benchmarking A* against BFS or Dijkstra
 - visualising larger grids or animated search steps
 
 That makes the current implementation a good foundation rather than just a one-off demo.
