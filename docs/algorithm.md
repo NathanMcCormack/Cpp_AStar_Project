@@ -9,100 +9,165 @@ title: Algorithm & Heuristic
 
 ---
 
-## 1. What is A*?
+## 1. What A* does
 
-A\* is a **best-first search algorithm** that finds the shortest path between two nodes in a graph. It is widely used in game AI, robotics, and navigation because it is both **complete** (always finds a path if one exists) and **optimal** (finds the shortest one), provided the heuristic satisfies the admissibility condition.
+A\* is a **best-first graph search algorithm** that finds a shortest path between a start node and a goal node. It is widely used because it combines two desirable properties:
 
-A\* ranks every candidate node using the evaluation function:
+- it is **complete** for this problem setting: if a path exists, it will find one
+- it is **optimal** when the heuristic is admissible and edge costs are non-negative
 
-> **f(n) = g(n) + h(n)**
+In this project, every move costs 1, so the total path cost is simply the number of orthogonal steps taken.
 
-| Symbol | Meaning |
-|---|---|
-| `g(n)` | The known, exact cost from the start node to node `n` |
-| `h(n)` | A heuristic estimate of the cost from `n` to the goal |
-| `f(n)` | The estimated total cost of the cheapest path through `n` |
-
-The algorithm always expands the open-set node with the **lowest f value** first.
-
----
-
-## 2. Why A* beats plain BFS or Dijkstra
-
-- **BFS** (Breadth-First Search) expands nodes level by level — it finds the shortest path on unweighted grids but explores in all directions equally, wasting effort on cells moving away from the goal.
-- **Dijkstra's algorithm** is like BFS with edge weights — still explores in all directions, just with cost-awareness.
-- **A\*** adds the heuristic `h(n)` to guide the search *toward* the goal, dramatically reducing the number of nodes expanded.
-
-In the limit where `h(n) = 0` for all nodes, A\* degenerates to Dijkstra's algorithm. In the limit where `g(n) = 0`, it becomes a pure greedy best-first search. A\* balances both.
-
----
-
-## 3. The heuristic: Manhattan distance
-
-For this project, movement is **4-directional** (up, down, left, right — no diagonals). The chosen heuristic is **Manhattan distance**:
-
-> **h(n) = |n.row − goal.row| + |n.col − goal.col|**
-
-### Why Manhattan distance?
-
-**Admissibility:** A heuristic is admissible if it *never over-estimates* the true cost to the goal. With 4-direction movement and unit step cost, the minimum number of moves from any cell to the goal is exactly its Manhattan distance — you cannot do it in fewer. Therefore Manhattan distance never over-estimates, making it admissible.
-
-**Consistency (monotonicity):** For any node `n` and neighbour `n'`, `h(n) ≤ cost(n, n') + h(n')`. Manhattan distance satisfies this because moving one step changes the Manhattan distance by exactly 1. Consistency implies admissibility and additionally guarantees that once a node is expanded its `g` value is already optimal — so we never need to re-open closed nodes.
-
-### Why not Euclidean distance?
-
-Euclidean distance (`√(Δr² + Δc²)`) is also admissible for 4-direction grids (it under-estimates even more aggressively than Manhattan), but it requires a floating-point square root and may under-estimate so much that A\* explores more cells than necessary. Manhattan is the tightest admissible heuristic for 4-direction grids, making it the best choice here.
-
----
-
-## 4. A* pseudocode
+The ranking function used by A\* is:
 
 ```text
-open_set  ← {start}               // min-heap ordered by f = g + h
-g[start]  ← 0
-parent[start] ← none
+f(n) = g(n) + h(n)
+```
 
-while open_set is not empty:
-    current ← node in open_set with min f
+| Term | Meaning |
+|---|---|
+| `g(n)` | exact cost from the start to node `n` |
+| `h(n)` | estimated cost from node `n` to the goal |
+| `f(n)` | estimated total cost of a path through `n` |
+
+The algorithm repeatedly expands the open-set node with the **smallest `f` value**.
+
+---
+
+## 2. Why A* instead of BFS or Dijkstra
+
+### BFS
+
+Breadth-First Search is correct for an unweighted grid, but it expands outward level by level in all directions. It has no awareness of the goal location, so it often explores many unnecessary cells.
+
+### Dijkstra
+
+Dijkstra's algorithm generalises BFS to weighted graphs. It is also correct here, but without a heuristic it still expands nodes more broadly than necessary.
+
+### A*
+
+A\* keeps Dijkstra's exact path-cost tracking (`g`) but adds a heuristic (`h`) to bias the search toward the goal. That gives the best balance for this project:
+
+- still optimal
+- still complete
+- usually fewer node expansions
+
+If `h(n) = 0` for all nodes, A\* becomes Dijkstra's algorithm. This makes A\* a strict improvement when a good admissible heuristic is available.
+
+---
+
+## 3. Heuristic choice: Manhattan distance
+
+The heuristic used is **Manhattan distance**:
+
+```text
+h(n) = |row_n - row_goal| + |col_n - col_goal|
+```
+
+This is the number of horizontal plus vertical moves needed **if there were no obstacles**.
+
+### Why it is admissible
+
+On a 4-direction grid with unit step cost, no valid path can ever be shorter than the Manhattan distance, because every move changes either the row or the column by exactly 1. Obstacles may force the actual path to be **longer**, but never shorter.
+
+That means Manhattan distance is a **lower bound** on the true remaining cost, so it never over-estimates.
+
+### Why it is consistent
+
+For any node `n` and neighbour `n'`, moving one step changes the Manhattan distance by at most 1. Therefore:
+
+```text
+h(n) ≤ cost(n, n') + h(n')
+```
+
+Since `cost(n, n') = 1` in this project, the consistency condition holds. That matters because once a node is closed, its best `g` value is already known and it does not need to be re-opened.
+
+---
+
+## 4. Why Manhattan is a better fit than Euclidean here
+
+Euclidean distance is also admissible on a 4-direction grid, but it is a looser estimate than Manhattan distance because it measures straight-line distance through continuous space. In a grid where diagonal motion is forbidden, that estimate is less informative.
+
+Manhattan distance is a better match because:
+
+- it reflects the legal movement model exactly
+- it is cheaper to compute than Euclidean distance
+- it usually causes fewer unnecessary expansions
+
+So Manhattan distance is both theoretically sound and practically better for this implementation.
+
+---
+
+## 5. A* pseudocode for this project
+
+```text
+open_set ← priority queue ordered by lowest f
+closed   ← false for every cell
+g[start] ← 0
+parent[start] ← none
+push start into open_set
+
+while open_set not empty:
+    current ← pop lowest-f node
+
+    if current is stale: skip
+    if current already closed: skip
+
+    close current
 
     if current == goal:
-        return reconstruct_path(parent, goal)
+        reconstruct path and return
 
-    move current to closed_set
-
-    for each neighbour of current:
-        if neighbour is obstacle or in closed_set: skip
-
-        tentative_g ← g[current] + step_cost(current, neighbour)
+    for each 4-direction neighbour:
+        tentative_g ← g[current] + 1
 
         if tentative_g < g[neighbour]:
-            parent[neighbour]  ← current
-            g[neighbour]       ← tentative_g
-            f[neighbour]       ← tentative_g + h(neighbour)
-            add neighbour to open_set
+            parent[neighbour] ← current
+            g[neighbour] ← tentative_g
+            f ← tentative_g + h(neighbour)
+            push neighbour into open_set
 
-return "no path found"
+return no path
 ```
+
+The key implementation detail is the **stale-entry check**. Since `std::priority_queue` does not support decrease-key, improved nodes are pushed again instead. Old entries are ignored later when their stored `g` no longer matches the best known table entry.
 
 ---
 
-## 5. Tie-breaking
+## 6. Tie-breaking rule
 
-When multiple nodes share the same `f` value, the order in which they are expanded can affect the shape (though not the length) of the final path. This implementation breaks ties by preferring the node with the **smaller h value** — i.e. the one physically closer to the goal. This produces more direct-looking paths without sacrificing optimality.
+If two open-set nodes have the same `f` value, this implementation prefers the node with the **smaller `h` value**.
 
 ```cpp
-// From aStar.cpp — the priority queue comparator
-if (a.f != b.f) return a.f > b.f;   // lower f = higher priority
-return a.h > b.h;                    // tie-break: lower h wins
+if (left.f_score != right.f_score) {
+  return left.f_score > right.f_score;
+}
+return left.h_score > right.h_score;
 ```
+
+This does not change optimality, but it makes the search appear more direct because it favours nodes physically closer to the goal.
 
 ---
 
-## 6. Optimality guarantee
+## 7. Complexity discussion
 
-Because Manhattan distance is **admissible and consistent**, A\* with this heuristic is guaranteed to:
-1. Find a path if one exists (completeness)
-2. Return a path of minimum length (optimality)
-3. Never re-expand a node once it has been closed (efficiency)
+Let `V` be the number of cells and `E` be the number of valid grid edges.
 
-These guarantees are proved in the original Hart, Nilsson & Raphael (1968) paper.
+- In the worst case, A\* still behaves similarly to Dijkstra and can explore much of the grid.
+- With a good heuristic such as Manhattan distance, the practical number of expansions is much lower.
+- Each push/pop on the open set costs `O(log V)` because it is implemented with a priority queue.
+
+For this project, the main performance observation is not asymptotic complexity alone, but **how many nodes were actually expanded**. That is why node-expansion counts are reported in both the demo and the tests.
+
+---
+
+## 8. Limitations of the current algorithm design
+
+The current version assumes:
+
+- a 2D rectangular grid
+- uniform movement cost (every step costs 1)
+- no diagonal movement
+- static obstacles only
+
+These are reasonable simplifications for the brief, but extending to weighted terrain or diagonal motion would require a different heuristic and slightly different neighbour logic.

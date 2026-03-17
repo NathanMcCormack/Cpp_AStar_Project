@@ -9,146 +9,235 @@ title: Design & Implementation
 
 ---
 
-## 1. Project structure
+## 1. Design goals
 
-The codebase is deliberately split into three logical units:
+Before writing the implementation, I set four design goals:
+
+1. **Correctness first** — always return an optimal path or correctly report that none exists.
+2. **Readable structure** — split the code into small modules rather than one large file.
+3. **Reusable grid abstraction** — keep grid logic separate from search logic.
+4. **Defensive validation** — reject invalid grids and invalid start/goal placements early.
+
+These goals shaped both the file structure and the coding style.
+
+---
+
+## 2. File structure and responsibilities
 
 | File | Responsibility |
 |---|---|
-| `helloWorld.h / .cpp` | Grid representation, validation, heuristic |
-| `aStar.h / .cpp` | A* algorithm — search and path reconstruction |
-| `main.cpp` | Program entry point and console visualisation |
+| `a_star_grid.h/.cpp` | Grid class, validation, neighbour generation, Manhattan heuristic |
+| `a_star.h/.cpp` | Search result type and A\* implementation |
+| `main.cpp` | Builds a demo grid, runs the search, prints a visual overlay |
+| `unit_tests.h/.cpp` | Test harness and six unit tests |
+| `Makefile` | Build automation for the demo binary and test binary |
+| `.clang-format` | Shared formatting rules for editor/tool consistency |
 
-This separation follows the **single-responsibility principle**: each file has one job. Changing the heuristic does not touch main.cpp; changing the visualisation does not touch aStar.cpp.
+This directly supports the brief requirement for **object-oriented design and modular code**.
 
 ---
 
-## 2. Grid representation — `aStarGrid`
+## 3. `AStarGrid`: representing the environment
 
-The environment is a 2D `std::vector<std::vector<int>>` stored inside the `aStarGrid` class:
+The environment is stored as a 2D `std::vector<std::vector<int>>`:
 
-- `0` = walkable (free) cell
-- `1` = obstacle (blocked) cell
+- `0` = free cell
+- `1` = obstacle
 
-Coordinates are `(row, col)`, zero-based from the top-left corner.
+The class encapsulates:
 
-### The `Pos` struct
+- grid dimensions
+- start and goal positions
+- validation rules
+- neighbour generation
+- grid printing
+- the Manhattan distance helper
 
-Rather than using `std::pair<int,int>`, a named struct is used for clarity:
+### Why a `Position` struct was used
+
+Instead of `std::pair<int, int>`, the code uses a named struct:
 
 ```cpp
-struct Pos {
-    int r;   // row
-    int c;   // col
-
-    bool operator==(const Pos& other) const noexcept {
-        return r == other.r && c == other.c;
-    }
+struct Position {
+  int row;
+  int col;
 };
 ```
 
-Using `p.r` and `p.c` is significantly more readable than `p.first` and `p.second`, especially in grid-heavy code.
-
-### Input validation
-
-The constructor calls `validateRectangular()` which checks:
-- The grid is not empty
-- Every row has the same width (rectangular)
-- Every cell value is exactly 0 or 1
-
-`setStart()` and `setGoal()` additionally check that the chosen cell is in-bounds and not an obstacle. This fails fast with a descriptive `std::invalid_argument` rather than causing a silent bug later.
+This improves readability because `position.row` and `position.col` make the coordinate meaning explicit. It also allows equality operators to be defined directly on the type.
 
 ---
 
-## 3. Neighbour generation — 4-direction movement
+## 4. Validation strategy
+
+The implementation uses **fail-fast validation**.
+
+### Grid validation
+
+`ValidateRectangular()` checks that:
+
+- the grid is not empty
+- the grid has at least one column
+- every row has the same width
+- every cell is either `0` or `1`
+
+### Position validation
+
+`ValidateWalkablePosition()` checks that:
+
+- the position is inside the grid
+- the position is not placed on an obstacle
+
+This is used by both `SetStart()` and `SetGoal()`, and it is also called by the constructor so that a custom grid cannot silently create an invalid default start or goal. That was an important robustness improvement over the earlier version.
+
+---
+
+## 5. Neighbour generation
+
+Neighbour generation is isolated in `Neighbours4()`:
 
 ```cpp
-const Pos dirs[4] = {
-    {-1, 0},   // up
-    { 1, 0},   // down
-    { 0,-1},   // left
-    { 0, 1}    // right
+constexpr std::array<AStarGrid::Position, 4> kDirections{{
+    {-1, 0},
+    {1, 0},
+    {0, -1},
+    {0, 1},
+}};
+```
+
+The function returns only valid orthogonal neighbours that are:
+
+- in bounds
+- not blocked by an obstacle
+
+This keeps all movement rules in one place. If the project were later extended to support diagonals or weighted terrain, this is one of the first places that would need to change.
+
+---
+
+## 6. `AStarResult`: packaging search output cleanly
+
+The search does not just return a boolean. It returns a dedicated result struct:
+
+```cpp
+struct AStarResult {
+  bool found = false;
+  std::vector<AStarGrid::Position> path;
+  std::vector<AStarGrid::Position> visited_order;
+  int nodes_expanded = 0;
 };
 ```
 
-Only orthogonal movement is allowed. This is a deliberate design choice: Manhattan distance is only admissible when diagonal movement is excluded. Allowing diagonals would require switching to Chebyshev or Euclidean distance.
+This design is better than returning multiple values through separate reference parameters because it keeps the search output cohesive and easier to test.
+
+The helper `PathLengthInMoves()` converts the stored path size into move count, which avoids repeating `path.size() - 1` logic elsewhere.
 
 ---
 
-## 4. The A* algorithm — key data structures
+## 7. Core A* data structures
 
-### Open set (priority queue)
-
-```cpp
-std::priority_queue<Node, std::vector<Node>, NodeGreater> open;
-```
-
-`std::priority_queue` is used as a **min-heap** by providing a custom comparator `NodeGreater` that inverts the default ordering. The node with the smallest `f = g + h` is always at the top.
-
-### Closed set (boolean array)
+### 7.1 Open set
 
 ```cpp
-std::vector<std::vector<bool>> closed(R, std::vector<bool>(C, false));
+std::priority_queue<OpenNode,
+                    std::vector<OpenNode>,
+                    OpenNodeGreater> open_set;
 ```
 
-A simple 2D boolean array. Once a cell is popped from the open set and expanded, its entry is set to `true`. Any future occurrence of that cell in the queue is discarded immediately.
+The open set stores candidate frontier nodes. It is implemented with `std::priority_queue` for efficient extraction of the lowest-ranked node.
 
-### gScore table
+### 7.2 `g_score`
 
 ```cpp
-std::vector<std::vector<int>> gScore(R, std::vector<int>(C, INF));
+std::vector<std::vector<int>> g_score(
+    row_count, std::vector<int>(col_count, kInfinity));
 ```
 
-Stores the cheapest known cost from start to every cell. Initialised to `INF` (a large sentinel, not `INT_MAX` to avoid overflow). Updated whenever a cheaper route to a cell is discovered.
+This stores the best known exact path cost from the start to every cell.
 
-### cameFrom table (path reconstruction)
+### 7.3 `came_from`
 
 ```cpp
-std::vector<std::vector<Pos>> cameFrom(R, std::vector<Pos>(C, Pos{-1,-1}));
+std::vector<std::vector<Position>> came_from(
+    row_count, std::vector<Position>(col_count, kNoParent));
 ```
 
-Records the predecessor of each cell on the best-known path. After the goal is reached, this table is walked backwards from goal → start, and then reversed to produce the final path.
+This stores the parent of each cell on the best known route so the final path can be reconstructed by walking backward from the goal.
+
+### 7.4 Closed set
+
+A 2D table records whether a node has already been fully expanded. Because Manhattan distance is consistent for this problem, closed nodes do not need to be reopened.
 
 ---
 
-## 5. Stale-entry handling (lazy deletion)
+## 8. Stale-entry handling
 
-`std::priority_queue` does not support the "decrease-key" operation needed when a shorter path to an already-queued node is found. The solution is the **lazy deletion** pattern:
+A common practical issue with A\* in C++ is that `std::priority_queue` has no **decrease-key** operation. If a better path to a node is found, the code cannot edit the old queue entry in place.
 
-1. When a better path to node `n` is found, push a **new entry** for `n` with the updated `g` and `f`.
-2. When a node is popped, **check if its `g` matches** `gScore[r][c]`. If not, the entry is stale — discard it and continue.
+The solution used here is **lazy deletion**:
 
-```cpp
-// Stale-entry check (from aStar.cpp)
-if (cur.g != gScore[p.r][p.c]) continue;
-```
+- push the improved entry into the queue
+- leave the old entry where it is
+- when the old entry is eventually popped, ignore it because its stored `g_score` no longer matches the best known table value
 
-This is simpler than implementing decrease-key and performs well in practice because the extra entries are discarded cheaply.
+This keeps the implementation simple, correct, and efficient enough for the project scope.
 
 ---
 
-## 6. Console visualisation
+## 9. Path reconstruction
 
-`printOverlay()` in `main.cpp` renders a composite view by building a character grid in layers:
+Once the goal is reached, the path is rebuilt by following `came_from` links backward:
 
-| Layer | Symbol | Meaning |
-|---|---|---|
-| Base | `.` | Free, unvisited cell |
-| Base | `#` | Obstacle |
-| Visited | `x` | Explored by A\* but not on the final path |
-| Path | `*` | On the optimal path |
-| Override | `S` / `G` | Start / goal (always on top) |
+1. start at the goal
+2. repeatedly move to its parent
+3. stop when the start is reached
+4. reverse the collected sequence
 
-The `x` vs `*` distinction is important for understanding the algorithm: it shows exactly which cells A\* considered before committing to the final path.
+A sentinel position `{-1, -1}` is used to detect an invalid parent chain. This is mainly defensive programming, but it prevents a silent infinite loop if reconstruction data were ever corrupted.
 
 ---
 
-## 7. Design choices and extensibility
+## 10. Console visualisation
 
-| Choice | Reasoning |
-|---|---|
-| `aStarGrid` class wraps the grid | Encapsulation — bounds checking and obstacle logic live in one place |
-| `AStarResult` struct return type | Clean API — all outputs in one value, no out-parameters |
-| Static `manhattan()` method | Depends only on two positions, not on grid state — logically belongs as a utility on the grid type |
-| `const aStarGrid&` parameter to `aStarSearch` | The algorithm is read-only with respect to the grid; passing by const ref makes this explicit |
-| Separate heuristic function | Straightforward to replace Manhattan with another heuristic (Euclidean, Chebyshev, custom weight) without touching the core loop |
+The final output layer is intentionally kept in `main.cpp`, not inside the search class. That separation matters:
+
+- the algorithm module focuses on correctness
+- the UI/demo module focuses on presentation
+
+The overlay uses:
+
+- `*` for the final path
+- `x` for expanded cells not on the path
+- `#` for obstacles
+- `S` and `G` for the endpoints
+
+This makes the search behaviour easy to explain during a lab demonstration.
+
+---
+
+## 11. Style decisions applied in the code
+
+The project follows a consistent style influenced by the Google C++ Style Guide and the C++ Core Guidelines:
+
+- **self-contained headers** with include guards
+- **PascalCase** for types and major functions
+- **snake_case** for variables and data members
+- **private member trailing underscores**
+- **symbolic constants** such as `kStepCost`, `kInfinity`, and `kNoParent`
+- **no raw `new` / `delete`**
+- comments used for non-obvious logic rather than obvious line-by-line narration
+
+The formatter configuration in `.clang-format` helps enforce this consistently.
+
+---
+
+## 12. Reuse and extension potential
+
+The code is intentionally designed so it can be extended without rewriting everything. Reasonable future extensions include:
+
+- loading grids from a file instead of hardcoding them
+- supporting weighted terrain
+- adding diagonal movement with a different heuristic
+- benchmarking A\* against BFS or Dijkstra
+- visualising larger grids or animated search steps
+
+That makes the current implementation a good foundation rather than just a one-off demo.

@@ -11,37 +11,90 @@ title: Project Management
 
 ## 1. Planning approach
 
-This project was developed iteratively, with each lab session used as a structured checkpoint. Progress was tracked using the three-question format from the brief:
+I treated each lab as a **development checkpoint** rather than trying to build the entire project at once. That matched the brief requirement to demonstrate ongoing progress in person.
+
+For each session I tracked three questions:
 
 1. What did I complete?
-2. What is my next step?
-3. Any blockers?
+2. What is the next step?
+3. What blockers or risks do I have?
 
-GitHub was used for version control, with commits made after each working milestone so that progress is traceable and the report site can be hosted via GitHub Pages.
-
----
-
-## 2. Weekly development log
-
-| Week | What I completed | Next step | Blockers / risks | Notes |
-|---|---|---|---|---|
-| W1 | Read the brief; chose C++ with `std::priority_queue`; sketched class design on paper | Design `aStarGrid` class with `Pos` struct | Deciding struct vs class for `Pos` | Chose struct — plain data with no invariants, no need for class |
-| W2 | Implemented `aStarGrid`: constructor, `validateRectangular`, `inBounds`, `isObstacle`, `neighbors4`, `printGrid` | Implement Manhattan heuristic and wire it to the search | Priority queue ordering (min vs max heap) | Manhattan added as a static method — belongs logically on the grid type |
-| W3 | Implemented `aStarSearch`: open set, closed set, gScore table, stale-entry check | Path reconstruction + console overlay | `cameFrom` initialisation causing loops in edge cases | Fixed with `{-1,-1}` sentinel and safety check |
-| W4 | Path reconstruction working; `printOverlay` added to main.cpp; default demo running | Edge-case testing | Time | Tests added: start==goal, no path, open grid, corridor |
-| W5 | All 6 tests passing; report pages written; code comments added | Final review and submission | — | — |
+This made the project easier to manage and also created a clear narrative for demonstrations.
 
 ---
 
-## 3. Milestones
+## 2. Development stages
 
-| Milestone | Description | Status |
-|---|---|---|
-| M1 | Grid class with validation, neighbour generation, and Manhattan heuristic | ✅ Complete |
-| M2 | A\* search producing correct paths on default grid | ✅ Complete |
-| M3 | Path reconstruction and console visualisation | ✅ Complete |
-| M4 | Edge-case test suite (6 tests, all passing) | ✅ Complete |
-| M5 | Report written across all pages with code snippets and evidence |  Incomplete |
+### Stage 1 — Understand the brief and choose a scope
+
+Initial decisions:
+
+- implement a **grid-based** A\* rather than a generic arbitrary graph
+- use **4-direction movement only**
+- use **Manhattan distance** as the heuristic
+- aim for a clean console demonstration rather than overcomplicating the UI
+
+This gave a realistic scope while still leaving room for good technical depth.
+
+### Stage 2 — Build the grid abstraction
+
+Tasks completed:
+
+- `AStarGrid` class created
+- rectangular-grid validation added
+- obstacle checks added
+- start and goal validation added
+- neighbour generation implemented
+
+Main risk at this stage: invalid input causing bugs later in the search.
+
+### Stage 3 — Implement A* search
+
+Tasks completed:
+
+- open set using `std::priority_queue`
+- `g_score` and `came_from` tables
+- closed set
+- stale-entry handling for improved paths
+- path reconstruction once goal is reached
+
+Main challenge at this stage: understanding that `std::priority_queue` is a max-heap by default, so the comparator had to be inverted.
+
+### Stage 4 — Add presentation and evidence
+
+Tasks completed:
+
+- console overlay added
+- node-expansion counts reported
+- sample output documented in GitHub Pages
+
+This made the project much easier to explain during a demonstration because the algorithm behaviour became visible instead of hidden.
+
+### Stage 5 — Strengthen quality
+
+Tasks completed:
+
+- file/module naming cleaned up
+- code style made consistent
+- `.clang-format` added
+- `Makefile` added
+- constructor robustness improved
+- separate unit-test binary created
+- report pages rewritten so they accurately match the code
+
+This stage was important for turning a working prototype into a stronger submission.
+
+---
+
+## 3. Weekly log summary
+
+| Week | Progress made | Next step | Main blocker / decision |
+|---|---|---|---|
+| W1 | Read brief, chose grid-based A\* scope | Design classes and data flow | Keep project achievable but still strong technically |
+| W2 | Built `AStarGrid`, validation, neighbour generation | Add heuristic and search logic | Deciding how much grid logic should live in one class |
+| W3 | Implemented A\* search and path reconstruction | Produce visual output | Getting the priority queue ordering correct |
+| W4 | Demo working, path and expansion stats visible | Test edge cases | Avoiding hidden bugs in invalid grids and reconstruction |
+| W5 | Added unit tests, formatting rules, Makefile, stronger report pages | Final review | Making sure report, code, and output all match exactly |
 
 ---
 
@@ -49,7 +102,33 @@ GitHub was used for version control, with commits made after each working milest
 
 | Risk | Likelihood | Impact | Mitigation |
 |---|---|---|---|
-| Priority queue ordering bug | Medium | High — wrong paths | Carefully verified comparator with worked example |
-| Infinite loop in path reconstruction | Low | High — program hangs | Sentinel `{-1,-1}` + safety break added |
-| Edge case crashes (empty grid, blocked start) | Medium | Medium — crash / exception | `validateRectangular` + early guard in `setStart`/`setGoal` |
-| Heuristic inadmissibility if diagonals added | Low | High — suboptimal paths | Documented decision to restrict to 4-direction movement |
+| Wrong priority-queue ordering | Medium | High | Wrote custom comparator and verified using known outputs |
+| Invalid grid silently accepted | Medium | Medium | Added constructor validation for blocked default start/goal |
+| Reconstruction loop on bad parent chain | Low | High | Used sentinel parent value and defensive check |
+| Report and code drifting out of sync | Medium | Medium | Re-ran builds/tests and updated pages only after verifying outputs |
+| Style inconsistency across files | Medium | Low | Applied one naming/formatting convention and added `.clang-format` |
+
+---
+
+## 5. Milestones
+
+| Milestone | Description | Status |
+|---|---|---|
+| M1 | Grid abstraction with validation and neighbour generation | ✅ Complete |
+| M2 | A\* search returns a correct shortest path | ✅ Complete |
+| M3 | Console visualisation of path and explored cells | ✅ Complete |
+| M4 | Separate unit-test binary with general and edge cases | ✅ Complete |
+| M5 | GitHub Pages report aligned to the final codebase | ✅ Complete |
+
+---
+
+## 6. What this section demonstrates
+
+This section shows that the project was built iteratively rather than appearing as a single final dump. That matters for the brief because the code quality, testing, and report quality all came from a sequence of improvements:
+
+- first make it work
+- then make it correct
+- then make it robust
+- then make it presentable
+
+That development process is a real part of the submission quality, not just background detail.
