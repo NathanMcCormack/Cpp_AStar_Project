@@ -42,4 +42,13 @@ The codebase applies a consistent style influenced by the references above:
 - snake_case for variables and data members
 - trailing underscore for private class members
 
+--- 
+
+## GitHub Pages Styling 
+
+I used the "Merlot" Jekyll theme to style this page. All themes as well as this one are linked below:
+
+- [Merlot Theme](https://github.com/pages-themes/merlot)
+- [All Themes](https://docs.github.com/en/pages/setting-up-a-github-pages-site-with-jekyll/adding-a-theme-to-your-github-pages-site-using-jekyll)
+
 These rules were used to improve readability and consistency across the final codebase.
