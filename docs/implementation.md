@@ -46,13 +46,9 @@ The main modules are:
 - **`main.cpp`** — demonstrates the final program behaviour and console visualisation
 - **`unit_tests.cpp`** — verifies expected behaviour using repeatable test cases
 
-When the class diagram is exported, it should be placed here in:
+![No Path Found Output](https://nathanmccormack.github.io/Cpp_AStar_Project/assets/images/ClassDiagram.png)
 
-`docs/assets/images/class-diagram.png`
-
-<!-- Uncomment when the image is added:
-![Class Diagram](assets/images/class-diagram.png)
--->
+![No Path Found Output](https://nathanmccormack.github.io/Cpp_AStar_Project/assets/images/ClassDiagramUnitTests.png)
 
 This design follows **separation of concerns**:
 - the grid class manages data and movement rules
