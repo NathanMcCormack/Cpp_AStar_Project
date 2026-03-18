@@ -21,7 +21,7 @@ This project is a **modern C++ console application** that implements the **A\***
 
 A pathfinding algorithm must answer a simple question efficiently:
 
-> **Given a start cell, a goal cell, and a set of blocked cells, what is the shortest valid path?** <
+> **Given a start cell, a goal cell, and a set of blocked cells, what is the shortest valid path?** 
 
 This is a useful problem in game AI, robotics, warehouse routing, and map navigation. A brute-force search will eventually find the shortest path on an unweighted grid, but it wastes time and work by expanding outward in every direction. A\* improves this by combining:
 
