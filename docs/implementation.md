@@ -243,7 +243,7 @@ I also kept a screenshot of the supporting `main.cpp` debug code used during thi
 
 A correct pathfinding program must also handle failure cases properly. I created a blocked map where the goal could not be reached and verified that the program reported **No path found** instead of inventing an invalid route.
 
-![No Path Found Output](/workspaces/C-_A-_Project/docs/assets/images/ManhattanDistanceNoPathStep2.png)
+![No Path Found Output](https://nathanmccormack.github.io/Cpp_AStar_Project/assets/images/ManhattanDistanceNoPathStep2.png)
 
 This stage improved robustness and helped validate the defensive logic in the implementation.
 
@@ -258,7 +258,7 @@ The program successfully:
 - reported the number of expanded nodes
 - displayed the explored route visually
 
-![Successful A* Output](/workspaces/C-_A-_Project/docs/assets/images/ManhattanStep2.png)
+![Successful A* Output](https://nathanmccormack.github.io/Cpp_AStar_Project/assets/images/ManhattanStep2.png)
 
 ### Step 4: produce the final visual overlay
 
@@ -271,7 +271,7 @@ The final stage improved presentation by overlaying the search result onto the g
 
 This made the final result easier to explain during demonstration and helped show how the algorithm explored the search space.
 
-![Final Overlay Visualisation](assets/images/final-overlay.png)
+![Final Overlay Visualisation](https://nathanmccormack.github.io/Cpp_AStar_Project/assets/images/finalTerminal.png)
 
 ---
 
