@@ -46,9 +46,9 @@ The main modules are:
 - **`main.cpp`** — demonstrates the final program behaviour and console visualisation
 - **`unit_tests.cpp`** — verifies expected behaviour using repeatable test cases
 
-![No Path Found Output](https://nathanmccormack.github.io/Cpp_AStar_Project/assets/images/ClassDiagram.png)
+![No Path Found Output](https://nathanmccormack.github.io/Cpp_AStar_Project/assets/images/ClassDiagram.jpeg)
 
-![No Path Found Output](https://nathanmccormack.github.io/Cpp_AStar_Project/assets/images/ClassDiagramUnitTests.png)
+![No Path Found Output](https://nathanmccormack.github.io/Cpp_AStar_Project/assets/images/ClassDiagramUnitTests.jpeg)
 
 This design follows **separation of concerns**:
 - the grid class manages data and movement rules
