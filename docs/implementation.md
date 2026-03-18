@@ -233,7 +233,7 @@ The first milestone was representing the environment correctly and making sure t
 
 This early debug stage also printed the Manhattan distance and the walkable neighbours of the start node. That was useful because the project only allows **4-directional movement**, so both the heuristic and neighbour logic needed to match that rule exactly.
 
-![alt text](image-1.png)
+docs/assets/images/MainCppManhattanStep1.png
 
 I also kept a screenshot of the supporting `main.cpp` debug code used during this stage.
 
