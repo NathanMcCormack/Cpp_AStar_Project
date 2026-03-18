@@ -237,7 +237,7 @@ docs/assets/images/MainCppManhattanStep1.png
 
 I also kept a screenshot of the supporting `main.cpp` debug code used during this stage.
 
-![MainCpp Manhattan Step 1](/assets/images/MainCppManhattanStep1.png)
+![MainCpp Manhattan Step 1](https://nathanmccormack.github.io/Cpp_AStar_Project/assets/images/MainCppManhattanStep1.png)
 
 ### Step 2: verify blocked-grid behaviour
 
