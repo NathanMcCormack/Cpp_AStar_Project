@@ -275,23 +275,7 @@ This made the final result easier to explain during demonstration and helped sho
 
 ---
 
-## 12. Console visualisation
-
-The final output layer is intentionally kept in `main.cpp`, not inside the search logic. That separation matters:
-
-- the algorithm module focuses on correctness
-- the demo/output layer focuses on presentation
-
-The overlay uses:
-
-- `*` for the final path
-- `x` for expanded cells not on the path
-- `#` for obstacles
-- `S` and `G` for the endpoints
-
----
-
-## 13. Unit testing support
+## 12. Unit testing support
 
 To improve correctness and maintainability, I added a separate unit-test source/header pair rather than relying only on manual checking in `main.cpp`.
 
@@ -306,7 +290,7 @@ The unit tests verify core behaviours such as:
 
 ---
 
-## 14. Style decisions applied in the code
+## 13. Style decisions applied in the code
 
 The project follows a consistent style influenced by the Google C++ Style Guide, the C++ Core Guidelines, and K&R-style brace formatting:
 
