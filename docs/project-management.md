@@ -5,13 +5,19 @@ title: Project Management
 
 # Project Management
 
-[Home](index.html) | [Algorithm](algorithm.html) | [Implementation](implementation.html) | [Testing](testing.html) | [Project Management](project-management.html) | [Reflection](reflection.html) | [AI & Integrity](ai-assistance.html) | [References](references.html)
+[Home](index.html) | [Algorithm](algorithm.html) | [Implementation](implementation.html) | [Testing](testing.html) | [Project Management](project-management.html)
+
+[Reflection](reflection.html) | [AI & Integrity](ai-assistance.html) | [References](references.html)
+
+---
+
+During development, I decided to adopt a more structured approach to building the GitHub Pages site. Rather than keeping the documentation in one large file, I used **GitHub Codespaces** and separated the site into multiple Markdown pages covering the key areas of the project, including the algorithm, implementation, testing, reflection, and project management. This improved maintainability, made updates easier to track, and created a more professional final presentation. It also helped keep the documentation consistent with the evolving C++ codebase by providing a single organised workspace for both implementation and reporting.
 
 ---
 
 ## 1. Planning approach
 
-I treated each lab as a **development checkpoint** rather than trying to build the entire project at once. That matched the brief requirement to demonstrate ongoing progress in person.
+I treated each lab as a **development checkpoint** rather than trying to build the entire project at once.
 
 For each session I tracked three questions:
 
@@ -68,21 +74,15 @@ Tasks completed:
 - node-expansion counts reported
 - sample output documented in GitHub Pages
 
-This made the project much easier to explain during a demonstration because the algorithm behaviour became visible instead of hidden.
-
 ### Stage 5 — Strengthen quality
 
 Tasks completed:
 
 - file/module naming cleaned up
 - code style made consistent
-- `.clang-format` added
-- `Makefile` added
 - constructor robustness improved
 - separate unit-test binary created
 - report pages rewritten so they accurately match the code
-
-This stage was important for turning a working prototype into a stronger submission.
 
 ---
 
@@ -94,7 +94,7 @@ This stage was important for turning a working prototype into a stronger submiss
 | W2 | Built `AStarGrid`, validation, neighbour generation | Add heuristic and search logic | Deciding how much grid logic should live in one class |
 | W3 | Implemented A\* search and path reconstruction | Produce visual output | Getting the priority queue ordering correct |
 | W4 | Demo working, path and expansion stats visible | Test edge cases | Avoiding hidden bugs in invalid grids and reconstruction |
-| W5 | Added unit tests, formatting rules, Makefile, stronger report pages | Final review | Making sure report, code, and output all match exactly |
+| W5 | Added unit tests, formatting rules, stronger report pages | Final review | Making sure report, code, and output all match exactly |
 
 ---
 
@@ -102,11 +102,9 @@ This stage was important for turning a working prototype into a stronger submiss
 
 | Risk | Likelihood | Impact | Mitigation |
 |---|---|---|---|
-| Wrong priority-queue ordering | Medium | High | Wrote custom comparator and verified using known outputs |
 | Invalid grid silently accepted | Medium | Medium | Added constructor validation for blocked default start/goal |
-| Reconstruction loop on bad parent chain | Low | High | Used sentinel parent value and defensive check |
 | Report and code drifting out of sync | Medium | Medium | Re-ran builds/tests and updated pages only after verifying outputs |
-| Style inconsistency across files | Medium | Low | Applied one naming/formatting convention and added `.clang-format` |
+| Style inconsistency across files | Medium | Low | Applied one naming/formatting convention |
 
 ---
 
@@ -120,15 +118,3 @@ This stage was important for turning a working prototype into a stronger submiss
 | M4 | Separate unit-test binary with general and edge cases | ✅ Complete |
 | M5 | GitHub Pages report aligned to the final codebase | ✅ Complete |
 
----
-
-## 6. What this section demonstrates
-
-This section shows that the project was built iteratively rather than appearing as a single final dump. That matters for the brief because the code quality, testing, and report quality all came from a sequence of improvements:
-
-- first make it work
-- then make it correct
-- then make it robust
-- then make it presentable
-
-That development process is a real part of the submission quality, not just background detail.

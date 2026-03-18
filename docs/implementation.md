@@ -5,7 +5,9 @@ title: Design & Implementation
 
 # Design & Implementation
 
-[Home](index.html) | [Algorithm](algorithm.html) | [Implementation](implementation.html) | [Testing](testing.html) | [Project Management](project-management.html) | [Reflection](reflection.html) | [AI & Integrity](ai-assistance.html) | [References](references.html)
+[Home](index.html) | [Algorithm](algorithm.html) | [Implementation](implementation.html) | [Testing](testing.html) | [Project Management](project-management.html)
+
+[Reflection](reflection.html) | [AI & Integrity](ai-assistance.html) | [References](references.html)
 
 ---
 
@@ -30,10 +32,6 @@ These goals shaped both the file structure and the coding style.
 | `a_star.h/.cpp` | Search result type and A* implementation |
 | `main.cpp` | Builds a demo grid, runs the search, prints a visual overlay |
 | `unit_tests.h/.cpp` | Test harness and unit tests |
-| `Makefile` | Build automation for the demo binary and test binary |
-| `.clang-format` | Shared formatting rules for editor/tool consistency |
-
-This directly supports the brief requirement for **object-oriented design and modular code**.
 
 ---
 
@@ -117,7 +115,7 @@ The implementation uses **fail-fast validation**.
 - the position is inside the grid
 - the position is not placed on an obstacle
 
-This is used by both `SetStart()` and `SetGoal()`, and it is also called by the constructor so that a custom grid cannot silently create an invalid default start or goal. That was an important robustness improvement over the earlier version.
+This is used by both `SetStart()` and `SetGoal()`, and it is also called by the constructor so that a custom grid cannot create an invalid default start or goal. That was an important robustness improvement over the earlier version.
 
 ---
 
@@ -227,9 +225,7 @@ A sentinel position `{-1, -1}` is used to detect an invalid parent chain. This i
 
 ---
 
-## 11. Development process: building the project from the ground up
-
-To demonstrate understanding, the project was developed incrementally rather than implemented as one finished block of code. Each stage was tested before the next feature was added.
+## 11. Development process
 
 ### Step 1: test the base grid and helper output
 
@@ -237,17 +233,17 @@ The first milestone was representing the environment correctly and making sure t
 
 This early debug stage also printed the Manhattan distance and the walkable neighbours of the start node. That was useful because the project only allows **4-directional movement**, so both the heuristic and neighbour logic needed to match that rule exactly.
 
-![Grid, Manhattan Distance, and Neighbour Debugging](assets/images/manhattan-step1.png)
+![Grid, Manhattan Distance, and Neighbour Debugging](/workspaces/C-_A-_Project/docs/assets/images/ManhattanStep1.png)
 
 I also kept a screenshot of the supporting `main.cpp` debug code used during this stage.
 
-![Debug Code in main.cpp](assets/images/maincpp-manhattan-step1.png)
+![Debug Code in main.cpp](/workspaces/C-_A-_Project/docs/assets/images/MainCppManhattanStep1.png)
 
 ### Step 2: verify blocked-grid behaviour
 
 A correct pathfinding program must also handle failure cases properly. I created a blocked map where the goal could not be reached and verified that the program reported **No path found** instead of inventing an invalid route.
 
-![No Path Found Output](assets/images/no-path-step.png)
+![No Path Found Output](/workspaces/C-_A-_Project/docs/assets/images/ManhattanDistanceNoPathStep2.png)
 
 This stage improved robustness and helped validate the defensive logic in the implementation.
 
@@ -262,7 +258,7 @@ The program successfully:
 - reported the number of expanded nodes
 - displayed the explored route visually
 
-![Successful A* Output](assets/images/manhattan-step2.png)
+![Successful A* Output](/workspaces/C-_A-_Project/docs/assets/images/ManhattanStep2.png)
 
 ### Step 4: produce the final visual overlay
 
@@ -276,8 +272,6 @@ The final stage improved presentation by overlaying the search result onto the g
 This made the final result easier to explain during demonstration and helped show how the algorithm explored the search space.
 
 ![Final Overlay Visualisation](assets/images/final-overlay.png)
-
-This staged process shows that the solution was developed systematically, tested continuously, and refined into a modular final implementation.
 
 ---
 
@@ -295,8 +289,6 @@ The overlay uses:
 - `#` for obstacles
 - `S` and `G` for the endpoints
 
-This makes the search behaviour easy to explain during a lab demonstration.
-
 ---
 
 ## 13. Unit testing support
@@ -312,8 +304,6 @@ The unit tests verify core behaviours such as:
 - validation of invalid grids
 - validation of invalid start/goal assumptions in the constructor
 
-This supports the brief requirement for testing and provides stronger evidence that the implementation works beyond a single demo case.
-
 ---
 
 ## 14. Style decisions applied in the code
@@ -328,18 +318,3 @@ The project follows a consistent style influenced by the Google C++ Style Guide,
 - **no raw `new` / `delete`**
 - comments used for non-obvious logic rather than obvious line-by-line narration
 
-The formatter configuration in `.clang-format` helps enforce this consistently across the project.
-
----
-
-## 15. Reuse and extension potential
-
-The code is intentionally designed so it can be extended without rewriting everything. Reasonable future extensions include:
-
-- loading grids from a file instead of hardcoding them
-- supporting weighted terrain
-- adding diagonal movement with a different heuristic
-- benchmarking A* against BFS or Dijkstra
-- visualising larger grids or animated search steps
-
-That makes the current implementation a good foundation rather than just a one-off demo.

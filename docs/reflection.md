@@ -5,39 +5,47 @@ title: Reflection & Next Steps
 
 # Reflection & Next Steps
 
-[Home](index.html) | [Algorithm](algorithm.html) | [Implementation](implementation.html) | [Testing](testing.html) | [Project Management](project-management.html) | [Reflection](reflection.html) | [AI & Integrity](ai-assistance.html) | [References](references.html)
+[Home](index.html) | [Algorithm](algorithm.html) | [Implementation](implementation.html) | [Testing](testing.html) | [Project Management](project-management.html)
+
+Reflection](reflection.html) | [AI & Integrity](ai-assistance.html) | [References](references.html)
 
 ---
 
 ## 1. Biggest problems encountered
 
-### 1.1 Understanding the priority queue behaviour
+### 1.1 Getting the movement logic correct
 
-The first major issue was that `std::priority_queue` is a **max-heap by default**, but A\* needs quick access to the node with the **lowest** `f` score. Early on, this was easy to get wrong because the comparator logic is inverted compared with natural reading.
+One of the first implementation challenges was making sure that movement matched the rules of the project. Because this version of A* only allows **4-directional movement** (up, down, left, right), the neighbour generation function had to return only valid orthogonal cells and ignore blocked or out-of-bounds positions.
 
 I addressed this by:
 
-- isolating the comparator in its own small struct
-- checking the ordering logic against expected A\* behaviour
-- documenting the tie-break rule clearly in both the code and the report
+- isolating the neighbour logic in a dedicated `Neighbours4()` function
+- testing it separately before running the full search
+- checking that only valid walkable neighbours were returned
 
-That made the implementation easier to trust and easier to explain.
+### 1.2 Handling no-path cases correctly
 
-### 1.2 Making the code robust rather than only functional
+Another important issue was making sure the program behaved correctly when no valid route existed. A pathfinding program can appear to work well on a simple demo grid, but it also needs to fail cleanly when the goal is unreachable.
 
-The second issue was that a search algorithm can appear to work on the default demo grid while still being fragile on invalid input. A good example was the custom-grid constructor: if the bottom-right cell was blocked, the earlier design still accepted it and only failed later in a less clear way.
+I addressed this by:
 
-I fixed that by adding constructor-level validation for the default start and goal positions. This was a useful reminder that **robustness is part of correctness**, not something extra.
+- creating a blocked test grid where no path should exist
+- checking that the program returned **No path found**
+- ensuring that no invalid route was printed in this case
+
+This improved the robustness of the solution and showed that the implementation handles edge cases as well as normal cases.
 
 ### 1.3 Keeping the report aligned with the actual code
 
-A report becomes weak very quickly if it claims tests, outputs, or design features that the final code does not actually contain. One of the more important clean-up tasks in this project was making sure that:
+One of the most important clean-up tasks in this project was making sure that the documentation matched the finished implementation.
 
-- file names in the report matched the codebase
-- testing claims matched a real test binary
-- output examples matched the current executable
+I addressed this by checking that:
 
-That alignment improved the professional quality of the submission.
+- file names in the report matched the real codebase
+- testing claims matched the actual unit test files
+- screenshots and output examples matched the current executable
+
+This improved the professional quality of the final submission.
 
 ---
 
@@ -49,17 +57,9 @@ Several design decisions worked particularly well:
 
 Splitting the project into grid logic, search logic, demo output, and tests made the system easier to reason about. When I needed to improve validation, for example, that work stayed mostly inside `AStarGrid`.
 
-### Manhattan distance choice
-
-Restricting movement to four directions made the heuristic decision straightforward and defensible. The theoretical explanation and the observed node-expansion counts both support this choice.
-
-### Console overlay
-
-The overlay turned out to be very valuable. Even though it is simple, it makes the search behaviour visible and makes the project much easier to demonstrate to a lecturer.
-
 ### Separate unit tests
 
-Adding a dedicated test binary strengthened the project significantly. It moved validation from “I ran the demo and it looked right” to repeatable checks that can be rerun after every code change.
+Adding a dedicated test binary strengthened the project significantly.
 
 ---
 
@@ -70,10 +70,7 @@ This project improved my understanding of several C++ and algorithmic topics:
 - how A\* balances exact cost and heuristic guidance
 - why admissibility and consistency matter in practice, not just theory
 - how to structure a small C++ program into reusable modules
-- how STL containers such as `std::priority_queue` influence design decisions
 - why defensive validation and edge-case testing improve code quality
-
-It also reinforced a broader lesson: a strong submission is not only about getting the core algorithm to run. It is also about making the code **explainable, testable, and maintainable**.
 
 ---
 
@@ -89,21 +86,7 @@ None of these changed the algorithm itself, but they would have made the process
 
 ---
 
-## 5. Current limitations
-
-The final version is strong for the project brief, but it still has practical limitations:
-
-- grids are still created in code rather than loaded from a file
-- all movement costs are uniform
-- there is no comparison against BFS or Dijkstra in code
-- the project is console-based only
-- the tests are not yet wired into CI
-
-These are reasonable boundaries for the scope of the assignment, but they are clear improvement opportunities.
-
----
-
-## 6. Next steps / future improvements
+## 5. Next steps / future improvements
 
 If this project were developed further, the most useful next steps would be:
 
@@ -115,28 +98,7 @@ Allow certain cells to cost more than others and adapt the algorithm to handle w
 
 Support diagonal movement and compare Manhattan, Euclidean, and Chebyshev heuristics depending on the movement model.
 
-### File-based map loading
-
-Read grids from text files so many scenarios can be tested without recompiling.
-
-### Performance comparison
-
-Implement BFS or Dijkstra alongside A\* and compare node-expansion counts and runtime across the same maps.
-
 ### CI-based testing
 
 Add a GitHub Actions workflow so tests run automatically on every push.
 
----
-
-## 7. Final reflection
-
-The most important outcome of the project is not just that the algorithm works. It is that I can now explain:
-
-- why the algorithm is correct
-- why this heuristic was chosen
-- how the data structures interact
-- what the main edge cases are
-- how the implementation was improved over time
-
-That depth of understanding is what turns a working program into a strong academic submission.

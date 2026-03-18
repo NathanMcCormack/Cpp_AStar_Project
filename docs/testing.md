@@ -5,7 +5,9 @@ title: Testing & Validation
 
 # Testing & Validation
 
-[Home](index.html) | [Algorithm](algorithm.html) | [Implementation](implementation.html) | [Testing](testing.html) | [Project Management](project-management.html) | [Reflection](reflection.html) | [AI & Integrity](ai-assistance.html) | [References](references.html)
+[Home](index.html) | [Algorithm](algorithm.html) | [Implementation](implementation.html) | [Testing](testing.html) | [Project Management](project-management.html)
+
+[Reflection](reflection.html) | [AI & Integrity](ai-assistance.html) | [References](references.html)
 
 ---
 
@@ -16,28 +18,9 @@ The brief requires testing of both general and edge scenarios, so I separated te
 1. **Demo run** via `main.cpp` to show the algorithm visually on the default grid
 2. **Unit tests** via `unit_tests.cpp` to verify correctness and error handling in a repeatable way
 
-This is stronger than relying only on screenshots or a manual demo because the same checks can be re-run after every code change.
-
 ---
 
-## 2. How the test binary is run
-
-```bash
-make test
-```
-
-or directly:
-
-```bash
-g++ -std=c++17 -O2 -Wall -Wextra -pedantic unit_tests.cpp a_star_grid.cpp a_star.cpp -o astar_tests
-./astar_tests
-```
-
-The test harness prints a pass/fail line for each case and a summary at the end.
-
----
-
-## 3. Unit-test output
+## 2. Unit-test output
 
 Current test run:
 
@@ -54,7 +37,7 @@ Passed 6 of 6 tests.
 
 ---
 
-## 4. Individual test cases
+## 3. Individual test cases
 
 ### T1 — Default 5×5 grid with obstacles
 
@@ -164,7 +147,7 @@ Result: **Pass**
 
 ---
 
-## 5. Why these tests are useful
+## 4. Why these tests are useful
 
 The six tests are deliberately mixed:
 
@@ -173,11 +156,9 @@ The six tests are deliberately mixed:
 - **search failure case**: T3
 - **input validation / robustness cases**: T5, T6
 
-That gives better coverage than testing only “happy path” scenarios.
-
 ---
 
-## 6. Manual validation from the demo output
+## 5. Manual validation from the demo output
 
 The default console demo still matters because it shows algorithm behaviour visually, not just numerically.
 
@@ -199,16 +180,3 @@ From this output I can manually verify:
 - A\* expands only a subset of the available cells
 
 That visual validation complements the unit tests well.
-
----
-
-## 7. Remaining testing limitations
-
-The project now has a proper unit-test binary, but there is still room to go further:
-
-- add larger randomised test grids
-- compare node counts against BFS for performance evidence
-- add automated CI so tests run on every push
-- collect line coverage with a dedicated coverage tool
-
-For the current brief, the existing test suite is sufficient and clearly demonstrates both correctness and validation effort.

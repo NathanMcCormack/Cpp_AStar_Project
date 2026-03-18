@@ -5,7 +5,9 @@ title: Algorithm & Heuristic
 
 # Algorithm & Heuristic
 
-[Home](index.html) | [Algorithm](algorithm.html) | [Implementation](implementation.html) | [Testing](testing.html) | [Project Management](project-management.html) | [Reflection](reflection.html) | [AI & Integrity](ai-assistance.html) | [References](references.html)
+[Home](index.html) | [Algorithm](algorithm.html) | [Implementation](implementation.html) | [Testing](testing.html) | [Project Management](project-management.html) 
+
+[Reflection](reflection.html) | [AI & Integrity](ai-assistance.html) | [References](references.html)
 
 ---
 
@@ -16,7 +18,7 @@ A\* is a **best-first graph search algorithm** that finds a shortest path betwee
 - it is **complete** for this problem setting: if a path exists, it will find one
 - it is **optimal** when the heuristic is admissible and edge costs are non-negative
 
-In this project, every move costs 1, so the total path cost is simply the number of orthogonal steps taken.
+In this project, every move costs 1, so the total path cost is just the number of orthogonal steps taken.
 
 The ranking function used by A\* is:
 
@@ -86,7 +88,7 @@ Since `cost(n, n') = 1` in this project, the consistency condition holds. That m
 
 ## 4. Why Manhattan is a better fit than Euclidean here
 
-Euclidean distance is also admissible on a 4-direction grid, but it is a looser estimate than Manhattan distance because it measures straight-line distance through continuous space. In a grid where diagonal motion is forbidden, that estimate is less informative.
+Euclidean distance is also admissible on a 4-direction grid, but it is a looser estimate than Manhattan distance because it measures straight-line distance through continuous space. In a grid where we are not allowing diagonla movement, that estimate is less informative.
 
 Manhattan distance is a better match because:
 

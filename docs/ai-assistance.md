@@ -5,96 +5,125 @@ title: AI & Academic Integrity
 
 # AI & Academic Integrity
 
-[Home](index.html) | [Algorithm](algorithm.html) | [Implementation](implementation.html) | [Testing](testing.html) | [Project Management](project-management.html) | [Reflection](reflection.html) | [AI & Integrity](ai-assistance.html) | [References](references.html)
+[Home](index.html) | [Algorithm](algorithm.html) | [Implementation](implementation.html) | [Testing](testing.html) | [Project Management](project-management.html) 
+
+[Reflection](reflection.html) | [AI & Integrity](ai-assistance.html) | [References](references.html)
 
 ---
 
-## 1. Principle followed
+## 1. Role of AI in this project
 
-AI tools were used as a **support tool**, not as a substitute for understanding. Any AI-assisted material that influenced the project was:
+In this project, AI was used to help generate and refine:
 
-- reviewed critically
-- adapted to fit my own design choices
-- compiled and tested in my own project
-- kept only if I could explain it clearly in person
-
-This follows the brief requirement that AI use must be limited, adapted, and fully understood.
-
----
-
-## 2. What AI was used for
-
-AI support was used in four bounded ways:
-
-1. **Concept clarification**
-   - understanding admissibility, consistency, and tie-breaking in A\*
-   - understanding why `std::priority_queue` behaves as a max-heap by default
-
-2. **Code review / cleanup support**
-   - reviewing naming consistency and formatting
-   - identifying robustness gaps such as invalid default start/goal positions
-   - suggesting sensible unit-test scenarios
-
-3. **Report drafting support**
-   - improving wording and structure of GitHub Pages sections
-   - helping keep explanations concise and technically accurate
-
-4. **Reflection support**
-   - helping organise what problems were encountered and how they were solved
+- the C++ class structure
+- the A\* search implementation
+- grid handling and validation logic
+- test scaffolding and unit-test ideas
+- improvements to naming, modularity, and documentation wording
 
 ---
 
-## 3. What AI was not trusted to do blindly
+## 2. What I was responsible for
 
-The following still required my own judgement:
+Although AI helped produce code, I was still responsible for:
 
-- deciding the project scope
-- choosing 4-direction movement
-- choosing Manhattan distance
-- checking whether suggested code actually compiled
-- checking whether outputs matched the report
-- checking whether test expectations were correct
-- deciding what was honest and appropriate to include in the final submission
-
-In other words, AI suggestions were treated as **proposals to verify**, not as automatically correct answers.
-
----
-
-## 4. Traceability examples
-
-| Area | Example of AI-assisted support | What I actually kept |
-|---|---|---|
-| Theory | Clarified the difference between admissible and consistent heuristics | Rewrote the explanation in my own report wording |
-| STL usage | Reviewed how to invert `std::priority_queue` ordering | Implemented and verified my own comparator |
-| Robustness | Highlighted that a blocked default goal should be rejected early | Added constructor validation and tested it |
-| Testing | Suggested edge cases worth checking | Created a separate `unit_tests.cpp` binary and validated expected results |
-| Report | Helped improve structure and phrasing | Kept only the parts that matched the final code exactly |
+- deciding the project scope and movement rules
+- choosing the overall structure of the program
+- checking whether the generated code actually matched the requirements
+- questioning design decisions made by the AI
+- testing the code on valid and invalid grids
+- identifying where the report and implementation did not match
+- writing and organising the GitHub Pages report myself
+- understanding the final implementation well enough to explain it during assessment
 
 ---
 
-## 5. Why this still represents my own understanding
+## 3. How AI was used responsibly
 
-The strongest evidence that the work is genuinely understood is that I can explain:
+AI outputs were not accepted blindly. A repeated review process was used:
 
-- what each file is responsible for
-- why Manhattan distance is valid here
-- why the stale-entry check works
-- why the constructor validation was added
-- what every unit test is checking
-- what limitations remain in the final design
+1. **Prompt the AI clearly** with the required constraints  
+   - C++
+   - grid-based A\*
+   - 4-directional movement only
+   - Manhattan distance heuristic
+   - modular design with header/source separation
 
-That level of explanation is more important than whether AI was used at all. The key issue is whether the final submission reflects my own understanding and judgement.
+2. **Read the generated code carefully**  
+   I reviewed class names, method responsibilities, control flow, and data structures rather than just copying the output directly.
+
+3. **Question design decisions**  
+   I asked why particular choices had been made, for example:
+   - why `std::priority_queue` was suitable
+   - why Manhattan distance matched 4-direction movement
+   - why `g_score`, `came_from`, and `closed` were needed
+
+4. **Test the generated code**  
+   The code was run on normal and edge-case examples to check that it behaved correctly.
+
+5. **Refine or replace weak output**  
+   If the AI produced code, wording, or structure that was unclear, inconsistent, or too generic, it was revised until it matched the actual project.
 
 ---
 
-## 6. Academic integrity statement
+## 4. Importance of strong prompting
 
-I have not treated AI output as a finished submission. I used it selectively for explanation, review, and refinement, and I manually checked the final code, outputs, and report content before including them.
+A major part of using AI effectively was writing strong prompts. Weak prompts produced vague or overly generic answers, while stronger prompts led to code and explanations that were much closer to the actual project requirements.
 
-Where AI-assisted ideas were useful, they were incorporated only after being:
+The most effective prompts included:
 
-- understood
-- edited to suit the project
-- tested against the actual codebase
+- the programming language
+- the exact algorithm required
+- the movement constraints
+- the need for modular header/source files
+- the desired coding style
+- the requirement to explain *why* each design choice was made
+- the need to keep documentation consistent with the implementation
 
-That is the standard I used throughout this project.
+For example, prompts were most useful when they specified details such as:
+
+- “no diagonal movement”
+- “use Manhattan distance”
+- “return the files separately”
+- “explain the logic step by step”
+
+---
+
+## 5. Questioning the AI output
+
+One of the most important parts of this project was not just using AI to generate code, but actively questioning its output.
+
+Examples of questions that were important during development included:
+
+- Why is Manhattan distance the correct heuristic here?
+- Why does `rows() - 1` or `cols() - 1` define the bottom-right goal?
+- Why does the path length use `path.size() - 1` rather than `path.size()`?
+
+---
+
+## 6. Limitations and risks of AI use
+
+AI also had limitations, and these needed to be managed carefully.
+
+Potential risks included:
+
+- explanations that sound correct but are slightly imprecise
+- inconsistent naming or file references
+- documentation that claims more than the implementation actually provides
+- overcomplicated solutions that are harder to explain in a demo
+
+---
+
+## 7. Reflection on AI use
+
+Using AI in this project was helpful, but the most valuable part was not the generation itself. The most valuable part was the process of reviewing, questioning, refining, and validating what was generated.
+
+This project showed that effective AI use in software development is not passive. It requires:
+
+- precise prompting
+- technical judgement
+- willingness to challenge the output
+- careful testing
+- and enough understanding to explain the final design clearly
+
+For that reason, AI was best viewed as a development assistant rather than an automatic solution. The quality of the final project depended not only on what the AI produced, but on how critically and effectively its output was used.
