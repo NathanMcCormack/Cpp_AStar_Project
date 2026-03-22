@@ -178,5 +178,3 @@ From this output I can manually verify:
 - no diagonal moves appear
 - the path does not cross obstacles
 - A\* expands only a subset of the available cells
-
-That visual validation complements the unit tests well.
